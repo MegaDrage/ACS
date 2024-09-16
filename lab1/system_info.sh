@@ -14,14 +14,15 @@ get_cpu_info() {
     cpu_model=$(grep "model name" /proc/cpuinfo | head -1 | cut -d ':' -f 2 | xargs)
     cpu_frequency=$(grep "cpu MHz" /proc/cpuinfo | head -1 | cut -d ':' -f 2 | xargs)
     cpu_cores=$(grep "cpu cores" /proc/cpuinfo | head -1 | cut -d ':' -f 2 | xargs)
-    cpu_cache=$(grep "cache size" /proc/cpuinfo | head -1 | cut -d ':' -f 2 | xargs)
+    cpu_cache=$(lscpu -C | tail -n +2 | awk '{print "Name: ", $1, "Size: ", $2}')
     cpu_count=$(grep -c "physical id" /proc/cpuinfo)
 
     echo "CPU Model: $cpu_model"
     echo "CPU Frequency: $cpu_frequency MHz"
     echo "Number of Cores: $cpu_cores"
     echo "Number of CPUs: $cpu_count"
-    echo "Cache Size: $cpu_cache"
+    echo "Cache:" 
+    echo "$cpu_cache"
 }
 
 get_memory_info() {

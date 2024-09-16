@@ -35,18 +35,17 @@ get_memory_info() {
 }
 
 get_network_info() {
-    echo "Network Interfaces:"
     interfaces=$(ip -o link show | awk -F': ' '{print $2}')
     for iface in $interfaces; do
-        ip_addrs=$(ip -o -4 addr show "$iface" | awk '{print $4}')
+        ip_addrs=$(ip -o -4 addr show "$iface" | awk '{printf " %s", $4}')
         mac_addr=$(ip link show "$iface" | grep link/ether | awk '{print $2}')
-        speed=$(cat /sys/class/net/"$iface"/speed 2>/dev/null)
+        speed=$(cat /sys/class/net/"$iface"/speed 2>/dev/null || nix run nixpkgs#iw "$iface" link | grep rx | awk '{print $3}')
 
-        echo "Interface: ""$iface"
-        echo "IP Addresses: ""$ip_addrs"
-        echo "MAC Address: ""$mac_addr"
-        echo "Speed: ""${speed:-Unknown} Mbps"
-        echo ""
+        echo "Interface: $iface"
+        echo "IP Addresses:$ip_addrs"
+        echo "MAC Address: ${mac_addr:-Unknown}"
+        echo "Speed: ${speed:-Unknown} Mbps"
+        echo
     done
 }
 
